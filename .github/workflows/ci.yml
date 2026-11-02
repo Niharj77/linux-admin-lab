@@ -1,0 +1,42 @@
+
+name: Linux Admin Lab CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Validate Linux Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Check Bash Syntax
+        shell: bash
+        run: |
+          find scripts -type f -name "*.sh" -print0 |
+          while IFS= read -r -d '' file; do
+            echo "Checking syntax: $file"
+            bash -n "$file"
+          done
+
+      - name: Run ShellCheck
+        run: |
+          find scripts -type f -name "*.sh" -print0 |
+          xargs -0 -r shellcheck
+
+      - name: CI Completed
+        run: echo "All Linux scripts passed validation!"
